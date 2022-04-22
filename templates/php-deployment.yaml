@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose --file docker-compose.yml convert --volumes hostPath
+    kompose.service.expose: drupal.test
+    kompose.version: 1.26.1 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: php
+  name: php
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: php
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose --file docker-compose.yml convert --volumes hostPath
+        kompose.service.expose: drupal.test
+        kompose.version: 1.26.1 (HEAD)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: php
+    spec:
+      containers:
+        - env:
+            - name: PHP_SENDMAIL_PATH
+              value: '"/usr/bin/dos2unix -u | /usr/sbin/ssmtp -t -f"'
+            - name: SSMTP_MAILHUB
+              value: mailhog:1025
+          image: 'wodby/drupal-php:'
+          name: -php
+          ports:
+            - containerPort: 8882
+          resources: {}
+          volumeMounts:
+            - mountPath: /var/www/html
+              name: php-hostpath0
+      restartPolicy: Always
+      volumes:
+        - hostPath:
+            path: /Users/stian.kilaas/Downloads/helmings
+          name: php-hostpath0
+status: {}

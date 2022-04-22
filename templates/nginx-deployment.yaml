@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose --file docker-compose.yml convert --volumes hostPath
+    kompose.version: 1.26.1 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: nginx
+  name: nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: nginx
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose --file docker-compose.yml convert --volumes hostPath
+        kompose.version: 1.26.1 (HEAD)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: nginx
+    spec:
+      containers:
+        - env:
+            - name: NGINX_BACKEND_HOST
+              value: php
+            - name: NGINX_ERROR_LOG_LEVEL
+              value: debug
+            - name: NGINX_SERVER_ROOT
+              value: /var/www/html/web
+            - name: NGINX_STATIC_OPEN_FILE_CACHE
+              value: "off"
+            - name: NGINX_VHOST_PRESET
+          image: 'wodby/nginx:'
+          name: -nginx
+          ports:
+            - containerPort: 8883
+          resources: {}
+          volumeMounts:
+            - mountPath: /var/www/html
+              name: nginx-hostpath0
+      restartPolicy: Always
+      volumes:
+        - hostPath:
+            path: /Users/stian.kilaas/Downloads/helmings
+          name: nginx-hostpath0
+status: {}

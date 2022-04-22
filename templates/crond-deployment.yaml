@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose --file docker-compose.yml convert --volumes hostPath
+    kompose.version: 1.26.1 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: crond
+  name: crond
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: crond
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose --file docker-compose.yml convert --volumes hostPath
+        kompose.version: 1.26.1 (HEAD)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: crond
+    spec:
+      containers:
+        - args:
+            - sudo
+            - -E
+            - LD_PRELOAD=/usr/lib/preloadable_libiconv.so
+            - crond
+            - -f
+            - -d
+            - "0"
+          env:
+            - name: CRONTAB
+              value: 0 * * * * drush -r /var/www/html/web cron
+          image: 'wodby/drupal-php:'
+          name: -crond
+          ports:
+            - containerPort: 8883
+          resources: {}
+          volumeMounts:
+            - mountPath: /var/www/html
+              name: crond-hostpath0
+      restartPolicy: Always
+      volumes:
+        - hostPath:
+            path: /Users/stian.kilaas/Downloads/helmings
+          name: crond-hostpath0
+status: {}
